@@ -11,95 +11,96 @@ Target Variable: coppaRisk (boolean: true or false) - Predict whether an app is 
 # Metode
 ## Exploratory Data Analysis (EDA)
 
-Tahap EDA dilakukan untuk memahami struktur data, mengidentifikasi pola, dan menemukan insight awal dari dataset. Proses EDA mencakup beberapa aktivitas analisis sebagai berikut:
+The EDA phase was carried out to understand the structure of the data, identify patterns, and discover initial insights from the dataset. This process included several analytical activities as follows:
 
-**1. Analisis Informasi Umum Data**
-Analisis dimulai dengan menggunakan fungsi `df.info()` untuk mendapatkan ringkasan DataFrame, termasuk jumlah non-null pada setiap kolom dan tipe datanya. Proses ini membantu mengidentifikasi kolom dengan missing values dan tipe data yang perlu dikonversi.
+**1. General Data Information Analysis**
+The analysis began by using the `df.info()` function to get a summary of the DataFrame, including the number of non-null values in each column and their data types. This process helped identify columns with missing values and those requiring type conversion.
 
-**2. Eksplorasi Data Awal**
-Dilakukan pemeriksaan terhadap 10 baris pertama dataset menggunakan `df.head(10)` untuk memberikan gambaran awal tentang format data dan nilai-nilai yang ada dalam dataset.
+**2. Initial Data Exploration**
+An inspection of the first 10 rows of the dataset was done using `df.head(10)` to provide an initial overview of the data format and values present in the dataset.
 
-**3. Analisis Nilai Unik**
-Pemeriksaan nilai unik dilakukan pada kolom 'downloads' menggunakan `df['downloads'].unique()` untuk mengidentifikasi inkonsistensi atau variasi yang perlu diperbaiki dalam data.
+**3. Unique Value Analysis**
+Unique values in the 'downloads' column were examined using `df['downloads'].unique()` to identify inconsistencies or variations that needed correction.
 
-**4. Analisis Distribusi Kategorikal**
-Analisis frekuensi dilakukan pada kolom 'primaryGenreName' menggunakan `df['primaryGenreName'].value_counts()` untuk menghitung distribusi setiap kategori dalam kolom tersebut.
+**4. Categorical Distribution Analysis**
+A frequency analysis was performed on the 'primaryGenreName' column using `df['primaryGenreName'].value_counts()` to count the distribution of each category in that column.
 
-**5. Identifikasi Missing Values**
-Penghitungan missing values dilakukan menggunakan `df.isnull().sum()` untuk mendapatkan jumlah missing values di setiap kolom. Selain itu, dilakukan pemeriksaan khusus pada baris dengan missing values di kolom 'appAge' menggunakan `df.loc[df['appAge'].isnull()]`.
+**5. Missing Values Identification**
+Missing values were counted using `df.isnull().sum()` to get the total number of missing entries in each column. A focused check was also done on rows with missing values in the 'appAge' column using `df.loc[df['appAge'].isnull()]`.
 
-**6. Analisis Korelasi**
-Analisis korelasi antar fitur numerik dilakukan dengan menghitung matriks korelasi dan memvisualisasikannya menggunakan heatmap `sns.heatmap(df_copy.corr(numeric_only=True), annot=True, fmt='.2f', cmap='coolwarm')`. Analisis ini membantu memahami hubungan antar fitur numerik dalam dataset.
+**6. Correlation Analysis**
+Correlation between numerical features was calculated and visualized using a heatmap via `sns.heatmap(df_copy.corr(numeric_only=True), annot=True, fmt='.2f', cmap='coolwarm')`. This analysis helped to understand the relationships among numerical features in the dataset.
 
-**7. Analisis Negara Developer**
-Dilakukan pemeriksaan nilai unik dan distribusi pada kolom 'developerCountry' menggunakan `df['developerCountry'].unique()` dan `df['developerCountry'].value_counts()`. Perbandingan frekuensi 'developerCountry' juga dilakukan antara data train dan test menggunakan `test['developerCountry'].value_counts()` untuk mengidentifikasi kategori yang hanya ada di satu dataset.
+**7. Developer Country Analysis**
+Unique values and distributions in the 'developerCountry' column were examined using `df['developerCountry'].unique()` and `df['developerCountry'].value_counts()`. A frequency comparison of 'developerCountry' was also conducted between the training and test datasets using `test['developerCountry'].value_counts()` to identify categories unique to one dataset.
 
 ## Data Cleaning
 
-Tahap cleaning data berfokus pada penanganan missing values, duplikat, dan inkonsistensi data. Proses cleaning meliputi:
+The data cleaning phase focused on handling missing values, duplicates, and data inconsistencies. This process involved:
 
-**1. Koreksi Nilai Inkonsisten**
-Dilakukan perbaikan nilai inkonsisten pada kolom 'downloads' dengan mengganti nilai yang salah seperti '1 - 1' menjadi '0 - 1', '5 - 1' menjadi '5 - 10', dan koreksi serupa lainnya pada training dan testing dataset.
+**1.  Inconsistent Value Correction**
+Inconsistent values in the 'downloads' column were corrected by replacing incorrect entries such as '1 - 1' with '0 - 1', '5 - 1' with '5 - 10', and similar corrections in both training and testing datasets.
 
-** 2. Penanganan Missing Values pada Downloads**
-Missing values pada kolom 'downloads' diisi menggunakan fungsi `map_download_range` berdasarkan nilai `userRatingCount`. Apabila nilai downloads masih kosong setelah mapping, diisi dengan 'Unknown' atau berdasarkan rentang `userRatingCount` yang sesuai.
+** 2. Handling Missing Values in Downloads**
+Missing values in the 'downloads' column were filled using the `map_download_range` function based on the `userRatingCount` value. If the value was still missing after mapping, it was filled with 'Unknown' or an appropriate range inferred from `userRatingCount`.
 
-**3. Penanganan Duplikat**
-Identifikasi dan penghitungan duplikat dilakukan menggunakan `df.duplicated().sum()` dan `df[df.duplicated()]`. Meskipun terdapat indikasi duplikat, analisis lebih lanjut dengan perbandingan `df.iloc[2151] == df.iloc[2405]` menunjukkan bahwa baris tersebut tidak sepenuhnya identik di semua kolom.
+**3. Handling Duplicates**
+Duplicate entries were identified and counted using `df.duplicated().sum()` and `df[df.duplicated()]`. Although there were indications of duplicates, further analysis comparing df.iloc[2151] == df.iloc[2405] showed that these rows were not entirely identical across all columns.
 
-**4. Penghapusan Kolom dengan Missing Values Tinggi**
-Kolom 'hasTermsOfServiceLink' dihapus menggunakan `df.drop(columns=['hasTermsOfServiceLink'])` karena memiliki banyak missing values dan korelasi yang tidak signifikan berdasarkan hasil EDA.
 
-**5. Imputasi Rating Pengguna**
-Missing values pada kolom 'averageUserRating' diisi dengan nilai 0 untuk menjaga konsistensi data.
+**4. Dropping Columns with High Missing Values**
+The column 'hasTermsOfServiceLink' was dropped using `df.drop(columns=['hasTermsOfServiceLink'])` due to a large number of missing values and insignificant correlation based on EDA findings.
 
-**6. Penghapusan Kolom dengan Korelasi Rendah**
-Kolom 'appContentBrandSafetyRating' dan 'adSpent' dihapus menggunakan `df.drop(columns=['appContentBrandSafetyRating', 'adSpent'])` karena memiliki banyak missing values dan korelasi rendah dengan target berdasarkan hasil Mutual Information dan Cramer's V.
+**5. Imputation of User Ratings**
+Missing values in the 'averageUserRating' column were filled with 0 to maintain data consistency.
 
-**7. Imputasi Kolom Kategorikal**
-Missing values pada kolom kategorikal `countryCode`, `hasPrivacyLink`, `hasTermsOfServiceLinkRating`, dan `isCorporateEmailScore` diisi dengan string 'undetermine'.
+**6. Dropping Columns with Low Correlation**
+Columns 'appContentBrandSafetyRating' and 'adSpent' were dropped using `df.drop(columns=['appContentBrandSafetyRating', 'adSpent'])` due to high missing value counts and low correlation with the target, as determined from Mutual Information and Cramer's V results.
 
-**8. Standardisasi Format Data**
-Dilakukan standardisasi format pada kolom 'developerCountry', 'countryCode', dan 'primaryGenreName' dengan mengubah nilai menjadi huruf kapital dan menghapus spasi menggunakan `.str.strip().str.upper()` untuk menjaga konsistensi.
+**7. Imputing Categorical Columns**
+Missing values in categorical columns such as 'countryCode', 'hasPrivacyLink', 'hasTermsOfServiceLinkRating', and 'isCorporateEmailScore' were filled with the string `undetermine`.
 
-**9. Koreksi Nama Negara**
-Perbaikan nama negara yang inkonsisten dilakukan, seperti mengganti 'VIETNAM' menjadi 'VIET NAM' untuk memastikan frequency encoding yang akurat.
+**8.Data Format Standardization**
+Standardization was applied to the 'developerCountry', 'countryCode', and 'primaryGenreName' columns by converting all values to uppercase and stripping spaces using `.str.strip().str.upper()` to ensure consistency.
 
-**10. Imputasi Numerik dengan MICE**
-Missing values pada kolom 'appAge' diisi menggunakan `IterativeImputer` (MICE - Multiple Imputation by Chained Equations) untuk mengisi missing values pada kolom numerik berdasarkan pola data yang ada.
+**9. Country Name Correction**
+Inconsistent country names were corrected, such as replacing 'VIETNAM' with 'VIET NAM' to ensure accurate frequency encoding.
+
+**10. Numerical Imputation with MICE**
+Missing values in the appAge column were filled using `IterativeImputer` (MICE - Multiple Imputation by Chained Equations), which imputes missing numeric values based on existing data patterns.
 
 ## Data Preprocessing
 
 Tahap preprocessing mempersiapkan data untuk pemodelan dengan melakukan encoding fitur kategorikal dan scaling fitur numerik:
 
 **1. Frequency Encoding**
-Frequency encoding diterapkan pada kolom `developerCountry`, `countryCode`, dan `primaryGenreName` menggunakan fungsi `frequency_encode_safe`. Fungsi ini menghitung frekuensi kategori dari data training dan memetakannya ke data training dan testing. Kategori yang tidak ada di data training diisi dengan nilai -1.
+Frequency encoding was applied to the 'developerCountry', 'countryCode', and 'primaryGenreName' columns using the `frequency_encode_safe function`. This function calculates the frequency of categories from the training data and maps them to both training and test sets. Categories not present in the training set were assigned a value of -1.
 
 **2. Ordinal Encoding**
-Beberapa kolom kategorikal dikonversi menggunakan ordinal encoding:
-- Kolom 'downloads': Menggunakan fungsi `encode_download_column` untuk mengkonversi rentang unduhan menjadi representasi numerik ordinal (contoh: '0 - 1' menjadi 0, '1 - 5' menjadi 1).
-- Kolom 'appDescriptionBrandSafetyRating' dan 'mfaRating': Menggunakan `ordinal_rating_map` dengan mapping 'low': 0, 'medium': 1, 'high': 2.
-- Kolom 'isCorporateEmailScore': Dikonversi dengan mapping '0.0': 0, '99.0': 1, 'undetermine': -1.
-- Kolom 'hasPrivacyLink': Dikonversi dengan mapping 'False': 0, 'True': 1, 'undetermine': -1.
-- Kolom 'hasTermsOfServiceLinkRating': Dikonversi dengan mapping 'low': 0, 'high': 1, 'undetermine': -1.
+Several categorical columns were converted using ordinal encoding:
+- downloads: Converted using the `encode_download_column` function, which maps download ranges to ordinal numerical values (e.g., '0 - 1' becomes 0, '1 - 5' becomes 1).
+- appDescriptionBrandSafetyRating and mfaRating: Mapped using `ordinal_rating_map` with the mapping 'low': 0, 'medium': 1, 'high': 2.
+- isCorporateEmailScore: Mapped with '0.0': 0, '99.0': 1, 'undetermine': -1.
+- hasPrivacyLink: Mapped with 'False': 0, 'True': 1, 'undetermine': -1.
+- hasTermsOfServiceLinkRating: Mapped with 'low': 0, 'high': 1, 'undetermine': -1.
 
 **3. One-Hot Encoding**
-One-hot encoding diterapkan pada kolom 'deviceType' menggunakan `OneHotEncoder` untuk mengubahnya menjadi beberapa kolom biner, karena kolom ini memiliki kategori tanpa urutan intrinsik dan jumlah kategori yang relatif kecil.
+One-hot encoding was applied to the 'deviceType' column using `OneHotEncoder` to convert it into multiple binary columns, as this column has a small number of unordered categories.
 
-**4. Penghapusan Kolom Asli**
-Kolom kategorikal asli yang telah di-encode dihapus dari DataFrame untuk menghindari redundansi data.
+**4. Dropping Original Columns**
+The original categorical columns that were encoded were dropped from the DataFrame to avoid data redundancy.
 
-**5. Pembagian Dataset**
-Dataset dipisahkan menjadi training dan testing set menggunakan `train_test_split` dengan parameter `stratify=y` untuk memastikan distribusi kelas target yang sama di kedua set.
+**5. Dataset Splitting**
+The dataset was split into training and testing sets using `train_test_split` with the `stratify=y` parameter to ensure the same class distribution in both sets.
 
 **6. Standard Scaling**
-Standard scaling diterapkan pada fitur numerik menggunakan `StandardScaler` untuk menormalisasi skala data, yang penting untuk model yang sensitif terhadap skala fitur.
+Standard scaling was applied to the numerical features using `StandardScaler` to normalize feature scales, which is crucial for models sensitive to feature magnitude.
 
-**7. Oversampling dengan SMOTE**
-SMOTE (Synthetic Minority Oversampling Technique) diterapkan pada data training yang telah di-scale menggunakan `SMOTE(random_state=42)` untuk mengatasi ketidakseimbangan kelas dalam dataset.
+**7. Oversampling with SMOTE**
+SMOTE (Synthetic Minority Oversampling Technique) was applied to the scaled training data using `SMOTE(random_state=42)` to address class imbalance in the dataset.
 
-**8. Pemodelan dan Evaluasi**
-Setelah preprocessing, dilakukan pelatihan dan evaluasi berbagai model machine learning termasuk XGBoost, LightGBM, Random Forest, SVM, Logistic Regression, serta ensemble Voting dan Stacking Classifiers. Hyperparameter tuning dilakukan menggunakan `GridSearchCV`, dan evaluasi model menggunakan `classification_report`, `roc_auc_score`, dan `confusion_matrix`.
+**8. Modeling and Evaluation**
+After preprocessing, various machine learning models were trained and evaluated, including XGBoost, LightGBM, Random Forest, SVM, and Logistic Regression, as well as ensemble techniques such as Voting and Stacking Classifiers. Hyperparameter tuning was conducted using `GridSearchCV`, and model evaluation was done using `classification_report`, `roc_auc_score`, and `confusion_matrix`.
 
 # Evaluation
 Submissions will be evaluated based on a suitable classification metric, likely:
